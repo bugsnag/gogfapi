@@ -125,11 +125,11 @@ func (f *File) Stat() (os.FileInfo, error) {
 }
 
 // Sync commits the file to the storage
-//
-// Returns error on failure
-//func (f *File) Sync() error {
-//	return f.Fd.Fsync()
-//}
+
+//Returns error on failure
+func (f *File) Sync() error {
+	return f.Fd.Fsync()
+}
 
 // Truncate changes the size of the file
 //

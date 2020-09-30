@@ -44,13 +44,13 @@ func (fd *Fd) Fstat(stat *syscall.Stat_t) error {
 // Fsync performs an fsync on the Fd
 //
 // Returns error on failure
-//func (fd *Fd) Fsync() error {
-//	ret, err := C.glfs_fsync(fd.fd)
-//	if ret < 0 {
-//		return err
-//	}
-//	return nil
-//}
+func (fd *Fd) Fsync() error {
+	ret, err := C.glfs_fsync(fd.fd, nil, nil)
+	if ret < 0 {
+		return err
+	}
+	return nil
+}
 
 // Ftruncate truncates the size of the Fd to the given size
 //
