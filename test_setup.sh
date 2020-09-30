@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker run -d --name gluster-test \
+docker run -d --name gluster-test-local \
   -p 24007:24007/tcp -p 24008:24008/tcp -p 24007:24007/udp -p 24008:24008/udp \
   -p 49152:49152/tcp -p 49152:49152/udp -p 49153:49153/tcp -p 49154:49154/tcp \
   -v /sys/fs/cgroup:/sys/fs/cgroup:ro --privileged=true \
