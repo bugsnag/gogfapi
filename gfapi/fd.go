@@ -45,39 +45,13 @@ func (fd *Fd) Fstat(stat *syscall.Stat_t) error {
 //
 // Returns error on failure
 func (fd *Fd) Fsync() error {
+	// the 2 nil parameters here are stat parameters. These are nil checked in the C library so it's OK to pass nil.
 	ret, err := C.glfs_fsync(fd.fd, nil, nil)
 	if ret < 0 {
 		return err
 	}
 	return nil
 }
-
-// Ftruncate truncates the size of the Fd to the given size
-//
-// Returns error on failure
-//func (fd *Fd) Ftruncate(size int64) error {
-//	_, err := C.glfs_ftruncate(fd.fd, C.off_t(size))
-//
-//	return err
-//}
-
-// Pread reads at most len(b) bytes into b from offset off in Fd
-//
-// Returns number of bytes read on success and error on failure
-//func (fd *Fd) Pread(b []byte, off int64) (int, error) {
-//	n, err := C.glfs_pread(fd.fd, unsafe.Pointer(&b[0]), C.size_t(len(b)), C.off_t(off), 0)
-//
-//	return int(n), err
-//}
-
-// Pwrite writes len(b) bytes from b into the Fd from offset off
-//
-// Returns number of bytes written on success and error on failure
-//func (fd *Fd) Pwrite(b []byte, off int64) (int, error) {
-//	n, err := C.glfs_pwrite(fd.fd, unsafe.Pointer(&b[0]), C.size_t(len(b)), C.off_t(off), 0)
-//
-//	return int(n), err
-//}
 
 // Read reads at most len(b) bytes into b from Fd
 //

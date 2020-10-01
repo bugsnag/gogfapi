@@ -80,13 +80,6 @@ func (f *File) Read(b []byte) (n int, err error) {
 	return n, err
 }
 
-// ReadAt reads atmost len(b) bytes into b starting from offset off
-//
-// Returns number of bytes read and an error if any
-//func (f *File) ReadAt(b []byte, off int64) (int, error) {
-//	return f.Fd.Pread(b, off)
-//}
-
 // Readdir returns the information of files in a directory.
 //
 // n is the maximum number of items to return. If there are more items than
@@ -131,13 +124,6 @@ func (f *File) Sync() error {
 	return f.Fd.Fsync()
 }
 
-// Truncate changes the size of the file
-//
-// Returns error on failure
-//func (f *File) Truncate(size int64) error {
-//	return f.Fd.Ftruncate(size)
-//}
-
 // Write writes len(b) bytes to the file
 //
 // Returns number of bytes written and an error if any
@@ -155,13 +141,6 @@ func (f *File) Write(b []byte) (n int, err error) {
 	}
 	return n, err
 }
-
-// WriteAt writes len(b) bytes to the file starting at offset off
-//
-// Returns number of bytes written and an error if any
-//func (f *File) WriteAt(b []byte, off int64) (int, error) {
-//	return f.Fd.Pwrite(b, off)
-//}
 
 // WriteString writes the contents of string s to the file
 //
