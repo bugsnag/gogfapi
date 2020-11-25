@@ -124,6 +124,13 @@ func (f *File) Sync() error {
 	return f.Fd.Fsync()
 }
 
+// DataSync commits data changes only to storage. Does not commit metadata changes.
+// Returns error on failure
+func (f *File) DataSync() error {
+	return f.Fd.FDatasync()
+}
+
+
 // Write writes len(b) bytes to the file
 //
 // Returns number of bytes written and an error if any
