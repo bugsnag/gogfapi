@@ -53,6 +53,18 @@ func (fd *Fd) Fsync() error {
 	return nil
 }
 
+// FDatasync performs an fdatasync on the Fd
+//
+// Returns error on failure
+func (fd *Fd) FDatasync() error {
+	// the 2 nil parameters here are stat parameters. These are nil checked in the C library so it's OK to pass nil.
+	ret, err := C.glfs_fdatasync(fd.fd, nil, nil)
+	if ret < 0 {
+		return err
+	}
+	return nil
+}
+
 // Read reads at most len(b) bytes into b from Fd
 //
 // Returns number of bytes read on success and error on failure
