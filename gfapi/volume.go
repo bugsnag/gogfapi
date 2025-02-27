@@ -492,3 +492,24 @@ func (v *Volume) Statvfs(path string, buf *Statvfs_t) error {
 	}
 	return err
 }
+
+// SetStateDumpPath sets the gfapi statedump path
+func (v *Volume) SetStateDumpPath(path string) error {
+	cpath := C.CString(path)
+	defer C.free(unsafe.Pointer(cpath))
+
+	ret, err := C.glfs_set_statedump_path(v.fs, cpath)
+	if int(ret) < 0 {
+		return err
+	}
+	return nil
+}
+
+// StateDump performs a system request to dump the state of the volume
+func (v *Volume) StateDump() error {
+	ret, err := C.glfs_sysrq(v.fs, 's')
+	if int(ret) < 0 {
+		return err
+	}
+	return nil
+}
