@@ -290,16 +290,18 @@ func (v *Volume) MkdirAll(path string, perm os.FileMode) error {
 	return nil
 }
 
-// RemoveAll removes path and any children it con
+// RemoveAll removes path and any children it contains
 
-// Open opens the named file on the the Volume v.
+// Open opens the named file on  the Volume v.
 // The Volume must be mounted before calling Open.
 // Open is similar to os.Open in its functioning.
 //
 // name is the name of the file to be open.
 //
-// Returns a File object on success and a os.PathError on failure.
-// BUG: Open does not support opening directories for gfapi version >= v10.3. Use OpenDir instead.
+// Returns a File object on success and an os.PathError on failure.
+//
+// BUG: Open does not support opening directories in Gluster v10.3+
+// as EISDIR is never returned as an error. Use OpenDir instead.
 func (v *Volume) Open(name string) (*File, error) {
 	isDir := false
 
@@ -321,13 +323,13 @@ func (v *Volume) Open(name string) (*File, error) {
 	return &File{name, Fd{cfd}, isDir}, nil
 }
 
-// OpenDir opens the named directory on the the Volume v.
+// OpenDir opens the named directory on the Volume v.
 // The Volume must be mounted before calling Open.
 // Open is similar to os.Open in its functioning.
 //
 // name is the name of the directory to open.
 //
-// Returns a File object on success and a os.PathError on failure.
+// Returns a File object on success and an os.PathError on failure.
 func (v *Volume) OpenDir(name string) (*File, error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
@@ -340,7 +342,7 @@ func (v *Volume) OpenDir(name string) (*File, error) {
 	return &File{name, Fd{cfd}, true}, nil
 }
 
-// OpenFile opens the named file on the the Volume v.
+// OpenFile opens the named file on the Volume v.
 // The Volume must be mounted before calling OpenFile.
 // OpenFile is similar to os.OpenFile in its functioning.
 //
@@ -348,7 +350,7 @@ func (v *Volume) OpenDir(name string) (*File, error) {
 // flags is the access mode of the file.
 // perm is the permissions for the opened file.
 //
-// Returns a File object on success and a os.PathError on failure.
+// Returns a File object on success and an os.PathError on failure.
 //
 // BUG : perm is not used for opening the file.
 // NOTE: It is better to use Open, Create etc. instead of using OpenFile directly
