@@ -292,7 +292,7 @@ func (v *Volume) MkdirAll(path string, perm os.FileMode) error {
 
 // RemoveAll removes path and any children it contains
 
-// Open opens the named file on  the Volume v.
+// Open opens the named file on the Volume v.
 // The Volume must be mounted before calling Open.
 // Open is similar to os.Open in its functioning.
 //
