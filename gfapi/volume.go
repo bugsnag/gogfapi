@@ -81,10 +81,10 @@ func (v *Volume) InitWithVolfile(volname, volfile string) int {
 // Mount establishes a 'virtual mount.' Mount must be called after Init and
 // before storage operations. Steps taken:
 //
-//  - Spawn a poll-loop thread.
-//  - Establish connection to management daemon (volfile server) and receive volume specification (volfile).
-//  - Construct translator graph and initialize graph.
-//  - Wait for initialization (connecting to all bricks) to complete.
+//   - Spawn a poll-loop thread.
+//   - Establish connection to management daemon (volfile server) and receive volume specification (volfile).
+//   - Construct translator graph and initialize graph.
+//   - Wait for initialization (connecting to all bricks) to complete.
 //
 // Source: glfs.h
 func (v *Volume) Mount() error {
@@ -226,7 +226,7 @@ func (v *Volume) Mkdir(name string, perm os.FileMode) error {
 	return nil
 }
 
-// Removes an existing directory
+// Rmdir removes an existing directory
 //
 // Returns error on failure
 func (v *Volume) Rmdir(path string) error {
@@ -299,6 +299,7 @@ func (v *Volume) MkdirAll(path string, perm os.FileMode) error {
 // name is the name of the file to be open.
 //
 // Returns a File object on success and a os.PathError on failure.
+// BUG: Open does not support opening directories for gfapi version >= v10.3. Use OpenDir instead.
 func (v *Volume) Open(name string) (*File, error) {
 	isDir := false
 
@@ -318,6 +319,25 @@ func (v *Volume) Open(name string) (*File, error) {
 	}
 
 	return &File{name, Fd{cfd}, isDir}, nil
+}
+
+// OpenDir opens the named directory on the the Volume v.
+// The Volume must be mounted before calling Open.
+// Open is similar to os.Open in its functioning.
+//
+// name is the name of the directory to open.
+//
+// Returns a File object on success and a os.PathError on failure.
+func (v *Volume) OpenDir(name string) (*File, error) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+
+	cfd, err := C.glfs_opendir(v.fs, cname)
+	if cfd == nil {
+		return nil, &os.PathError{"opendir", name, err}
+	}
+
+	return &File{name, Fd{cfd}, true}, nil
 }
 
 // OpenFile opens the named file on the the Volume v.
@@ -377,18 +397,13 @@ func (v *Volume) Stat(name string) (os.FileInfo, error) {
 // Truncate changes the size of the named file
 //
 // Returns an error on failure
-//
-// TODO: gfapi currently (20131120) has not implement glfs_truncate.
-//       Once it has been implemented, renable the commented out code
-//       or write own function to implement the functionality of glfs_truncate
 func (v *Volume) Truncate(name string, size int64) error {
-	// cname := C.CString(name)
-	// defer C.free(unsafe.Pointer(cname))
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
 
-	// _, err := C.glfs_truncate(v.fs, cname, C.off_t(size))
+	_, err := C.glfs_truncate(v.fs, cname, C.off_t(size))
 
-	// return err
-	return errors.New("Truncate not implemented")
+	return err
 }
 
 // Rename a file or directory
@@ -409,7 +424,7 @@ func (v *Volume) Rename(oldpath string, newpath string) error {
 	return nil
 }
 
-// Get value of the extended attribute 'attr' and place it in 'dest'
+// Getxattr gets value of the extended attribute 'attr' and place it in 'dest'
 //
 // Returns number of bytes placed in 'dest' and error if any
 func (v *Volume) Getxattr(path string, attr string, dest []byte) (int64, error) {
@@ -436,7 +451,7 @@ func (v *Volume) Getxattr(path string, attr string, dest []byte) (int64, error) 
 	}
 }
 
-// Set extended attribute with key 'attr' and value 'data'
+// Setxattr sets extended attribute with key 'attr' and value 'data'
 //
 // Returns error on failure
 func (v *Volume) Setxattr(path string, attr string, data []byte, flags int) error {
@@ -457,7 +472,7 @@ func (v *Volume) Setxattr(path string, attr string, data []byte, flags int) erro
 	return err
 }
 
-// Remove extended attribute named 'attr'
+// Removexattr removes extended attribute named 'attr'
 //
 // Returns error on failure
 func (v *Volume) Removexattr(path string, attr string) error {
@@ -476,7 +491,7 @@ func (v *Volume) Removexattr(path string, attr string) error {
 	return err
 }
 
-// Get filesystem statistics
+// Statvfs get filesystem statistics
 //
 // Returns an error on failure
 func (v *Volume) Statvfs(path string, buf *Statvfs_t) error {

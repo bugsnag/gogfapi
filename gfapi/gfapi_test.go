@@ -254,7 +254,7 @@ func TestReaddir(t *testing.T) {
 	tmpDir, clean := setupReaddir(t)
 	defer clean()
 
-	d, err := vol.Open(tmpDir)
+	d, err := vol.OpenDir(tmpDir)
 	check(t, err == nil, "Open %q: %s", tmpDir, err)
 
 	info, err := d.Readdir(0)

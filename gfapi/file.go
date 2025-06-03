@@ -86,6 +86,9 @@ func (f *File) Read(b []byte) (n int, err error) {
 // the maximum they can be obtained in successive calls. If maximum is 0
 // then all the items will be returned.
 func (f *File) Readdir(n int) ([]os.FileInfo, error) {
+	if !f.isDir {
+		return nil, &os.PathError{"readdir", f.name, syscall.ENOTDIR}
+	}
 	return f.Fd.Readdir(n)
 }
 
@@ -93,6 +96,9 @@ func (f *File) Readdir(n int) ([]os.FileInfo, error) {
 //
 // n is the maximum number of items to return and works the same way as Readdir.
 func (f *File) Readdirnames(n int) ([]string, error) {
+	if !f.isDir {
+		return nil, &os.PathError{"readdirnames", f.name, syscall.ENOTDIR}
+	}
 	return f.Fd.Readdirnames(n)
 }
 
@@ -118,8 +124,8 @@ func (f *File) Stat() (os.FileInfo, error) {
 }
 
 // Sync commits the file to the storage
-
-//Returns error on failure
+//
+// Returns error on failure
 func (f *File) Sync() error {
 	return f.Fd.Fsync()
 }
@@ -129,7 +135,6 @@ func (f *File) Sync() error {
 func (f *File) DataSync() error {
 	return f.Fd.FDatasync()
 }
-
 
 // Write writes len(b) bytes to the file
 //
@@ -156,28 +161,28 @@ func (f *File) WriteString(s string) (int, error) {
 	return f.Write([]byte(s))
 }
 
-// Manipulate the allocated disk space for the file
+// Fallocate manipulates the allocated disk space for the file
 //
 // Returns error on failure
 func (f *File) Fallocate(mode int, offset int64, len int64) error {
 	return f.Fd.Fallocate(mode, offset, len)
 }
 
-// Get value of the extended attribute 'attr' and place it in 'dest'
+// Getxattr gets value of the extended attribute 'attr' and place it in 'dest'
 //
 // Returns number of bytes placed in 'dest' and error if any
 func (f *File) Getxattr(attr string, dest []byte) (int64, error) {
 	return f.Fd.Fgetxattr(attr, dest)
 }
 
-// Set extended attribute with key 'attr' and value 'data'
+// Setxattr sets extended attribute with key 'attr' and value 'data'
 //
 // Returns error on failure
 func (f *File) Setxattr(attr string, data []byte, flags int) error {
 	return f.Fd.Fsetxattr(attr, data, flags)
 }
 
-// Remove extended attribute named 'attr'
+// Removexattr removes extended attribute named 'attr'
 //
 // Returns error on failure
 func (f *File) Removexattr(attr string) error {
