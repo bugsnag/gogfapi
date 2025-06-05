@@ -14,7 +14,6 @@ package gfapi
 // #include <sys/stat.h>
 import "C"
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path"
